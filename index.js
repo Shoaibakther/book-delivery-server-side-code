@@ -18,6 +18,7 @@ async function run() {
         await client.connect();
         const database = client.db('bookCenter');
         const servicesCollection = database.collection('services');
+        const ordersCollection = database.collection('orders');
 
 // Get api 
         app.get('/services', async (req, res) => {
@@ -47,6 +48,21 @@ async function run() {
             const query = { _id: ObjectId(id) }
             const result = await servicesCollection.deleteOne(query)
             res.json(result)
+        })
+        // Add Order 
+        app.post("/addOrder", (req, res) => {
+            console.log(req.body);
+            ordersCollection.insertOne(req.body)
+                .then(result => {
+                res.send(result);
+                })
+            
+            // Get Orders 
+            app.get("/myOrders/:email", async (req, res) => {
+                console.log(req.params.email);
+                const result = await ordersCollection.find({ email: req.params.email }).toArray();
+                res.send(result);
+            })
         })
     } finally {
         // await client.close();
